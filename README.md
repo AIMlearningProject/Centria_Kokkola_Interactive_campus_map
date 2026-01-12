@@ -1,0 +1,1 @@
+# Centria_Kokkola_Interactive_campus_map
