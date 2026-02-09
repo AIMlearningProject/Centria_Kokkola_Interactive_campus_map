@@ -9,8 +9,6 @@ public class RoomActByTouch : MonoBehaviour
 
     private string This_name;
 
-
-
     private void Awake()
     {
         This_name = gameObject.name;
@@ -23,12 +21,13 @@ public class RoomActByTouch : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            if(!canvasC.OnMap())
+            if (!canvasC.OnMap())
             {
                 Debug.Log("Activating room: " + This_name);
                 canvasC.SetRoomNameAtCanvas(This_name);
                 canvasC.PlayFade(9);
             }
+            else Debug.Log("Failed to open room info");
         }
     }
 }

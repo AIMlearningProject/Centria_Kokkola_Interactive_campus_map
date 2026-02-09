@@ -29,9 +29,12 @@ public class Path_Controller : MonoBehaviour
 
     public void GoToNextStep() //Floor0 = 4, Floor1 = 5, Floor2 = 6
     {
-        if (IsAtNextStep) { Canvas.GetComponent<Canvas_Controller>().PlayFade(5); next_prev_button_text.text = "Next step"; }
-        else { Canvas.GetComponent<Canvas_Controller>().PlayFade(NextStep + 4); next_prev_button_text.text = "Previous step"; }
-        IsAtNextStep = !IsAtNextStep;
+        if(NextStep != 1)
+        {
+            if (IsAtNextStep) { Canvas.GetComponent<Canvas_Controller>().PlayFade(5); next_prev_button_text.text = "Next step"; }
+            else { Canvas.GetComponent<Canvas_Controller>().PlayFade(NextStep + 4); next_prev_button_text.text = "Previous step"; }
+            IsAtNextStep = !IsAtNextStep;
+        }
     }
 
     public void Operation(string room) //Will Activate path. Always founded room expected.
@@ -43,7 +46,6 @@ public class Path_Controller : MonoBehaviour
         {
             Debug.Log("Activating path on floor 0");
             ActivatePath_Floor0(room);
-            NextStep = floor;
         }
         else if (floor == 1)
         {
@@ -54,8 +56,8 @@ public class Path_Controller : MonoBehaviour
         {
             Debug.Log("Activating path on floor 2");
             ActivatePath_Floor2(room);
-            NextStep = floor;
         }
+        NextStep = floor;
     }
 
     private void Deactivate_StairsPaths() //Should be called when exiting pathing.
@@ -69,10 +71,16 @@ public class Path_Controller : MonoBehaviour
 
         Deactivate_StairsPaths();
 
-        for (int i = 0; i < Floor_1_Paths.transform.childCount; i++)
-        {
-            Floor_1_Paths.transform.GetChild(i).gameObject.SetActive(false);
-        }
+        for (int i = 0; i < Floor_0_Paths.transform.childCount; i++) { Floor_0_Paths.transform.GetChild(i).gameObject.SetActive(false); }
+        for (int i = 0; i < Floor_1_Paths.transform.childCount; i++) { Floor_1_Paths.transform.GetChild(i).gameObject.SetActive(false); }
+        for (int i = 0; i < Floor_2_Paths.transform.childCount; i++) { Floor_2_Paths.transform.GetChild(i).gameObject.SetActive(false); }
+    }
+
+    public void ResetEverything()
+    {
+        Deactivate_StairsPaths();
+        DeactivateAll();
+        ResetNavigationVariables();
     }
 
     private GameObject selectedPath; //When room found is from a another floor (0 or 1), this script must activate correct path to correct stairs. That info is contained in component that is found from that path gameobject. Look Activation function to floor 2 for better detail.
@@ -83,11 +91,13 @@ public class Path_Controller : MonoBehaviour
         for (int i = 0; i < Floor_1_Paths.transform.childCount; i++)
         {
             GameObject path = Floor_1_Paths.transform.GetChild(i).gameObject;
+            string[] name = path.name.Split('_');
 
-            if (path.name.Contains(room))
+            if (name[1] == room)//if (path.name.Contains(room))
             {
                 path.SetActive(true);
                 Success = true;
+                break;
             }
             else
             {
@@ -105,12 +115,14 @@ public class Path_Controller : MonoBehaviour
         for (int i = 0; i < Floor_2_Paths.transform.childCount; i++)
         {
             GameObject path = Floor_2_Paths.transform.GetChild(i).gameObject;
+            string[] name = path.name.Split('_');
 
-            if (path.name.Contains(room))
+            if (name[1] == room)//if (path.name.Contains(room))
             {
                 path.SetActive(true);
                 Success = true;
                 selectedPath = path;
+                break;
             }
             else
             {
@@ -132,12 +144,14 @@ public class Path_Controller : MonoBehaviour
         for (int i = 0; i < Floor_0_Paths.transform.childCount; i++)
         {
             GameObject path = Floor_0_Paths.transform.GetChild(i).gameObject;
+            string[] name = path.name.Split('_');
 
-            if (path.name.Contains(room))
+            if (name[1] == room)//if (path.name.Contains(room))
             {
                 path.SetActive(true);
                 Success = true;
                 selectedPath = path;
+                break;
             }
             else
             {

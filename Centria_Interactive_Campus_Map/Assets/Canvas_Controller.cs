@@ -27,7 +27,12 @@ public class Canvas_Controller : MonoBehaviour
 
     public bool OnMap()
     {
-        return !MapNav_Interface.activeSelf && !MapPath_Interface.activeSelf && !Room_Information.activeSelf && !GetComponent<Search_Function>().GetSearchActive();
+        bool success = false;
+        //success = MapNav_Interface.activeSelf; if(success) { return success; }
+        success = MapPath_Interface.activeSelf; if (success) { return success; }
+        success = Room_Information.activeSelf; if (success) { return success; }
+        success = GetComponent<Search_Function>().GetSearchActive(); if (success) { return success; }
+        return success;
     }
 
     private void Start()
@@ -66,7 +71,6 @@ public class Canvas_Controller : MonoBehaviour
 
     public void Show_RoomInformation() //Open the reservation info screen for specific room. Uses room_name to get right room.
     {
-
         bool Go = !Room_Information.activeSelf;
 
         Room_Information.SetActive(Go);
@@ -83,7 +87,7 @@ public class Canvas_Controller : MonoBehaviour
             {
                 Debug.Log("Currently this room has: " + Maps.GetComponent<Room_Controller>().GetReservationsForRoomByName(room_name).Count + " reservations.");
 
-                Transform reservationSlots = Room_Information.transform.GetChild(2); int i = 0; int MaxSlots = reservationSlots.childCount;
+                Transform reservationSlots = Room_Information.transform.GetChild(2); int i = 0; int MaxSlots = reservationSlots.childCount; Debug.Log("Max slots for reservations is " + MaxSlots);
 
                 foreach (Reservation reservation in list)
                 {
@@ -97,15 +101,12 @@ public class Canvas_Controller : MonoBehaviour
                         else { reservationSlots.GetChild(i).GetChild(0).GetComponent<Image>().color = Color.red; }
 
                         i++;
-                        if(i < MaxSlots) { break; }
+                        if(i > MaxSlots) { break; }
                     }
                 }
 
             }
-            else
-            {
-                Debug.Log("This room does not have reservations.");
-            }
+            else { Debug.Log("This room does not have reservations."); }
         }
         else { Debug.Log("Exiting room information panel."); }
     }
@@ -147,6 +148,14 @@ public class Canvas_Controller : MonoBehaviour
         Maps.GetComponent<Path_Controller>().Operation(room);
     }
 
+    public void DisableShowPathEverything()
+    {
+        MapNav_Interface.SetActive(true);
+        GetComponent<Search_Function>().CloseSearch();
+        MapPath_Interface.SetActive(false);
+        Maps.GetComponent<FloorController>().SetFloorToBe(1);
+        Maps.GetComponent<Path_Controller>().ResetEverything();
+    }
     public enum Fade_Modes
     {
         None = 0,
@@ -159,13 +168,17 @@ public class Canvas_Controller : MonoBehaviour
         SearchActBack = 7,
         ShowPathNow = 8,
         RoomShow = 9,
+        SearchBack = 10
     }
 
     public void PlayFade(int mode) //This is attached to buttons that starts fade sequence. This is optional since fade sequence can be skipped by using funcs from => Fade_mode_Funcs().
     {
         if(mode == (int)Fade_Modes.FloorUp && Maps.GetComponent<FloorController>().Get_FloorCount() >= 2) { Debug.Log("Cannot go up anymore. Max is 2. Current floor is " + Maps.GetComponent<FloorController>().Get_FloorCount()); }
         else if (mode == (int)Fade_Modes.FloorDown && Maps.GetComponent<FloorController>().Get_FloorCount() <= 0) { Debug.Log("Cannot go lower anymore. Min is 0. Current floor is " + Maps.GetComponent<FloorController>().Get_FloorCount()); }
-        else if (mode == (int)Fade_Modes.SearchAct && !GetComponent<Search_Function>().IsSearchFieldEmpty()) { Debug.Log("Deleting one letter."); GetComponent<Search_Function>().PadButton("*"); }
+        else if (mode == (int)Fade_Modes.SearchBack && !GetComponent<Search_Function>().IsSearchFieldEmpty()) 
+        { 
+            Debug.Log("Deleting one letter."); GetComponent<Search_Function>().PadButton("*"); 
+        }
         //else if (mode >= (int)Fade_Modes.Floor0 && mode <= (int)Fade_Modes.Floor2) { } //This should always work.
         else
         {
@@ -194,7 +207,8 @@ public class Canvas_Controller : MonoBehaviour
         }
         else if (Fade_mode == (int)Fade_Modes.ShowPathNow) { ShowPath(); }
         else if (Fade_mode == (int)Fade_Modes.RoomShow) { Show_RoomInformation(); }
-        Fade_mode = 0; //This value should always reset.
+        else if (Fade_mode == (int)Fade_Modes.SearchBack) { DisableShowPathEverything(); }
+            Fade_mode = 0; //This value should always reset.
     }
 
     private IEnumerator FadeInOut() //Simply a fade effect is done here. You can switch color from the image component itself. This only applies for alpha channel.

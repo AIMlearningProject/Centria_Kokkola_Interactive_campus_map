@@ -57,6 +57,7 @@ public class FloorController : MonoBehaviour // This component is expected to be
         DisableAllOtherFloors();
         transform.GetChild(floor).gameObject.SetActive(true);
         floorCount = floor;
+        FloorText.text = floorCount.ToString() + "F";
     }
 
     void DisableAllOtherFloors() //Disables all other floors if let open by accident.

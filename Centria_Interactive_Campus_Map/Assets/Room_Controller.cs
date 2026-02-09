@@ -243,11 +243,26 @@ public class Room_Controller : MonoBehaviour
 
     public TextMeshProUGUI ShowTime;
     private DateTime currentTime;
+    void Start()
+    {
+        RoomsUpdate();
+        StartCoroutine(RoomsUpdateLoop());
+    }
+
+    IEnumerator RoomsUpdateLoop()
+    {
+        while (true)
+        {
+            RoomsUpdate();
+            yield return new WaitForSeconds(600f); // 10 minutes
+        }
+    }
 
     void Update()
     {
         currentTime = TimeUtils.GetFinnishTime();
         ShowTime.text = $"{currentTime:HH:mm}";
+
         if (Input.GetKeyDown(KeyCode.Tab)) { RoomsUpdate(); }
     }
 
@@ -291,6 +306,7 @@ public class Room_Controller : MonoBehaviour
         AddReservationToRoom("131", "Varaustesti", (float)FinnishTimeSlots.H11_00 + 47, (float)FinnishTimeSlots.H13_00+30);
         AddReservationToRoom("131", "Varaustesti1", (float)FinnishTimeSlots.H13_00 + 51f, (float)FinnishTimeSlots.H15_00 + 30f);
         AddReservationToRoom("131", "Varaustesti2", (float)FinnishTimeSlots.H15_00 + 45f, (float)FinnishTimeSlots.H17_00 + 15f);
+        AddReservationToRoom("131", "Varaustesti3", (float)FinnishTimeSlots.H18_00, (float)FinnishTimeSlots.H19_00 + 15f);
 
         Debug.Log(((int)FinnishTimeSlots.H14_00 + 30f) / 60);
 
@@ -356,7 +372,7 @@ public class Room_Controller : MonoBehaviour
         }
     }
 
-    public void Cam_to_TargetRoom(string name)
+    public void Cam_to_TargetRoom(string name) // Not used.
     {
         bool roomIsFound = false; int id = 0;
 
@@ -392,7 +408,7 @@ public class Room_Controller : MonoBehaviour
         }
     }
 
-    public void ProcessToRoom() //Unused since new feature was added. Only used as reference to create better functions.
+    public void ProcessToRoom() //Currently used in the apply button in search room.
     {
         string room = Canvas.GetComponent<Search_Function>().GetTarget();
 
